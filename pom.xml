@@ -23,8 +23,9 @@
     <java.target.version>1.6</java.target.version>
 
     <!-- Versions for dependencies -->
-    <hadoop.version>1.0.3</hadoop.version>
+    <hadoop.version>1.1.1</hadoop.version>
     <hive.version>0.10.0</hive.version>
+    <jackson.version>1.8.8</jackson.version>
 
     <!-- Versions for plugins -->
     <compiler.plugin.version>2.3.2</compiler.plugin.version>
@@ -60,6 +61,27 @@
         <artifactId>hive-pdk</artifactId>
         <version>${hive.version}</version>
         <scope>provided</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.codehaus.jackson</groupId>
+        <artifactId>jackson-core-asl</artifactId>
+        <version>${jackson.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.codehaus.jackson</groupId>
+        <artifactId>jackson-mapper-asl</artifactId>
+        <version>${jackson.version}</version>
+      </dependency>
+
+      <!-- Ack: this is terrible, and should be replaced with a real dependency. -->
+      <dependency>
+        <groupId>com.esri</groupId>
+        <artifactId>geometry-api</artifactId>
+        <version>1.0.0</version>
+        <scope>system</scope>
+        <systemPath>${project.basedir}/../lib/esri-geometry-api.jar</systemPath>
       </dependency>
     </dependencies>
   </dependencyManagement>

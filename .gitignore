@@ -4,3 +4,10 @@ json/javadoc/
 spatial-sdk-hadoop.jar
 hive/spatial-sdk-hive.jar
 json/spatial-sdk-json.jar
+.classpath
+.project
+.settings
+.cache
+target
+*.iml
+.idea
