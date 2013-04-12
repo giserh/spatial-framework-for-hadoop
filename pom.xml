@@ -7,7 +7,7 @@
   <version>0.1.0</version>
   <packaging>pom</packaging>
 
-  <name>Cloudera Data Science Machine Learning Library</name>
+  <name>Spatial Framework for Hadoop</name>
   <url>http://github.com/Esri/spatial-framework-for-hadoop</url>
   <description>Enables developers and data scientists to use the Hadoop data processing system for spatial data analysis.</description>
 
