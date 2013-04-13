@@ -1,27 +1,16 @@
-/**
- * Copyright (c) 2013, Cloudera, Inc. All Rights Reserved.
- *
- * Cloudera, Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"). You may not use this file except in
- * compliance with the License. You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * This software is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
- * CONDITIONS OF ANY KIND, either express or implied. See the License for
- * the specific language governing permissions and limitations under the
- * License.
- */
 package com.esri.hadoop.hive;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.hadoop.hive.serde2.objectinspector.ListObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector.Category;
 import org.apache.hadoop.hive.serde2.objectinspector.PrimitiveObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.PrimitiveObjectInspector.PrimitiveCategory;
 import org.apache.hadoop.hive.serde2.objectinspector.StructField;
 import org.apache.hadoop.hive.serde2.objectinspector.StructObjectInspector;
+import org.apache.hadoop.hive.serde2.objectinspector.primitive.StringObjectInspector;
 
 import com.esri.core.geometry.Geometry;
 import com.esri.core.geometry.MultiPoint;
@@ -31,21 +20,19 @@ import com.esri.core.geometry.Polyline;
 import com.esri.core.geometry.SpatialReference;
 import com.esri.core.geometry.ogc.OGCGeometry;
 
-/**
- *
- */
 public class GeoJsonStructUtils {
 
   public static final SpatialReference SPATIAL_REFERENCE = SpatialReference.create(4326);
   
   public static String getType(Object obj, StructObjectInspector soi) {
     StructField field = soi.getStructFieldRef("type");
-    return (String) soi.getStructFieldData(obj, field);
+    StringObjectInspector stringOI = (StringObjectInspector) field.getFieldObjectInspector();
+    return stringOI.getPrimitiveJavaObject(soi.getStructFieldData(obj, field));
   }
   
   public static OGCGeometry parse(Object obj, StructObjectInspector soi) {
     String geoType = getType(obj, soi).toLowerCase();
-    List coords = (List) soi.getStructFieldData(obj, soi.getStructFieldRef("coordinates"));
+    List coords = deserializeCoordinates(obj, soi);
     Geometry geo = null;
     if ("point".equals(geoType)) {
       geo = fromPoint((List<Double>) coords);
@@ -63,6 +50,29 @@ public class GeoJsonStructUtils {
       throw new IllegalArgumentException("Unknown type in GeoJSON record: " + geoType);
     }
     return OGCGeometry.createFromEsriGeometry(geo, SPATIAL_REFERENCE);
+  }
+  
+  private static List deserializeCoordinates(Object obj, StructObjectInspector soi) {
+    StructField sf = soi.getStructFieldRef("coordinates");
+    ListObjectInspector loi = (ListObjectInspector) sf.getFieldObjectInspector();
+    List coord = loi.getList(soi.getStructFieldData(obj, sf));
+    return deserializeRecursively(coord, loi.getListElementObjectInspector());
+  }
+  
+  private static List deserializeRecursively(List list, ObjectInspector listElementOI) {
+    List ret = new ArrayList();
+    if (listElementOI.getCategory() == Category.LIST) {
+      ListObjectInspector loi = (ListObjectInspector) listElementOI;
+      for (Object obj : list) {
+        ret.add(deserializeRecursively(loi.getList(obj), loi.getListElementObjectInspector()));
+      }
+    } else if (listElementOI.getCategory() == Category.PRIMITIVE) {
+      PrimitiveObjectInspector poi = (PrimitiveObjectInspector) listElementOI;
+      for (Object obj : list) {
+        ret.add(poi.getPrimitiveJavaObject(obj));
+      }
+    }
+    return ret;
   }
   
   /**
