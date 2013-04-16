@@ -77,11 +77,9 @@
 
       <!-- Ack: this is terrible, and should be replaced with a real dependency. -->
       <dependency>
-        <groupId>com.esri</groupId>
-        <artifactId>geometry-api</artifactId>
-        <version>1.0.0</version>
-        <scope>system</scope>
-        <systemPath>${project.basedir}/../lib/esri-geometry-api.jar</systemPath>
+        <groupId>com.esri.geometry</groupId>
+        <artifactId>esri-geometry-api</artifactId>
+        <version>1.0</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

@@ -29,8 +29,8 @@
     </dependency>
 
     <dependency>
-      <groupId>com.esri</groupId>
-      <artifactId>geometry-api</artifactId>
+      <groupId>com.esri.geometry</groupId>
+      <artifactId>esri-geometry-api</artifactId>
     </dependency>
   </dependencies>
 
